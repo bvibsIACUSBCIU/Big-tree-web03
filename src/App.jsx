@@ -344,11 +344,11 @@ const Header = ({ language, setLanguage, t }) => {
                             <motion.a href="#" onClick={(e) => { e.preventDefault(); setIsContactOpen(s => !s); }} className="bg-green-500 text-white font-semibold px-6 py-2 rounded-full text-base" whileHover={{ scale: 1.05 }}>{t.contactUs}</motion.a>
                             {isContactOpen && (
                                 <div className="mt-3 w-3/4 bg-white rounded-xl shadow-md p-3 text-center">
-                                    <a href="https://t.me/BIGBIGNONO" onClick={(e) => { e.preventDefault(); window.open('https://t.me/BIGBIGNONO', '_blank', 'noopener,noreferrer'); setIsMenuOpen(false); setIsContactOpen(false); }} className="flex items-center justify-center px-3 py-2 rounded-md hover:bg-gray-100 text-sm text-gray-800">
+                                    <a href="https://t.me/BIGBIGNONO" target="_blank" rel="noopener noreferrer" className="flex items-center justify-center px-3 py-2 rounded-md hover:bg-gray-100 text-sm text-gray-800">
                                         <Send size={16} className="text-blue-500 mr-2" />
                                         <span>Martin</span>
                                     </a>
-                                    <a href="https://t.me/Elma_R09" onClick={(e) => { e.preventDefault(); window.open('https://t.me/Elma_R09', '_blank', 'noopener,noreferrer'); setIsMenuOpen(false); setIsContactOpen(false); }} className="flex items-center justify-center px-3 py-2 rounded-md hover:bg-gray-100 text-sm text-gray-800">
+                                    <a href="https://t.me/Elma_R09" target="_blank" rel="noopener noreferrer" className="flex items-center justify-center px-3 py-2 rounded-md hover:bg-gray-100 text-sm text-gray-800">
                                         <Send size={16} className="text-blue-500 mr-2" />
                                         <span>Elma</span>
                                     </a>
