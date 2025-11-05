@@ -1,0 +1,28 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="/vite.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Tree Finance Clone</title>
+    <!-- 引入 Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+      /* 因为使用CDN，我们在这里定义自定义动画 */
+      @keyframes infinite-scroll {
+        from { transform: translateX(0); }
+        to { transform: translateX(-100%); }
+      }
+      .animate-infinite-scroll {
+        animation: infinite-scroll 50s linear infinite;
+      }
+      body {
+        overflow-x: hidden; /* 防止水平滚动条 */
+      }
+    </style>
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/main.jsx"></script>
+  </body>
+</html>
