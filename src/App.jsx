@@ -277,6 +277,22 @@ const Header = ({ language, setLanguage, t }) => {
   };
     const contactRef = useRef(null);
 
+    // 在点击外部链接时优先使用 window.open 打开新标签，
+    // 然后再关闭菜单。这样可以避免某些移动浏览器在 React
+    // 卸载触发元素后阻止导航的问题。
+    const openExternal = (url, closeMenu = false) => {
+        try {
+            // 先尝试通过 window.open 显式打开（更可靠）
+            window.open(url, '_blank', 'noopener,noreferrer');
+        } catch (err) {
+            // 如果 window.open 被阻止，兜底使用 location.assign
+            window.location.href = url;
+        }
+        // 关闭弹窗/菜单状态（如果需要）
+        if (closeMenu) setIsMenuOpen(false);
+        setIsContactOpen(false);
+    };
+
     useEffect(() => {
         const handleClickOutside = (e) => {
             if (contactRef.current && !contactRef.current.contains(e.target)) {
@@ -317,11 +333,11 @@ const Header = ({ language, setLanguage, t }) => {
                         </button>
                         {isContactOpen && (
                             <div className="absolute right-0 mt-3 w-56 bg-white rounded-xl shadow-xl p-3 text-left z-50" role="menu" aria-label="Contact options">
-                                <a href="https://t.me/BIGBIGNONO" target="_blank" rel="noopener noreferrer" className="flex items-center px-3 py-2 rounded-md hover:bg-gray-100 text-sm text-gray-800">
+                                <a href="https://t.me/BIGBIGNONO" target="_blank" rel="noopener noreferrer" onClick={(e) => { e.preventDefault(); openExternal('https://t.me/BIGBIGNONO'); }} className="flex items-center px-3 py-2 rounded-md hover:bg-gray-100 text-sm text-gray-800">
                                     <Send size={16} className="text-blue-500 mr-3" />
                                     <span>Martin</span>
                                 </a>
-                                <a href="https://t.me/Elma_R09" target="_blank" rel="noopener noreferrer" className="flex items-center px-3 py-2 rounded-md hover:bg-gray-100 text-sm text-gray-800">
+                                <a href="https://t.me/Elma_R09" target="_blank" rel="noopener noreferrer" onClick={(e) => { e.preventDefault(); openExternal('https://t.me/Elma_R09'); }} className="flex items-center px-3 py-2 rounded-md hover:bg-gray-100 text-sm text-gray-800">
                                     <Send size={16} className="text-blue-500 mr-3" />
                                     <span>Elma</span>
                                 </a>
@@ -344,11 +360,11 @@ const Header = ({ language, setLanguage, t }) => {
                             <motion.a href="#" onClick={(e) => { e.preventDefault(); setIsContactOpen(s => !s); }} className="bg-green-500 text-white font-semibold px-6 py-2 rounded-full text-base" whileHover={{ scale: 1.05 }}>{t.contactUs}</motion.a>
                             {isContactOpen && (
                                 <div className="mt-3 w-3/4 bg-white rounded-xl shadow-md p-3 text-center">
-                                    <a href="https://t.me/BIGBIGNONO" target="_blank" rel="noopener noreferrer" className="flex items-center justify-center px-3 py-2 rounded-md hover:bg-gray-100 text-sm text-gray-800">
+                                    <a href="https://t.me/BIGBIGNONO" target="_blank" rel="noopener noreferrer" onClick={(e) => { e.preventDefault(); openExternal('https://t.me/BIGBIGNONO', true); }} className="flex items-center justify-center px-3 py-2 rounded-md hover:bg-gray-100 text-sm text-gray-800">
                                         <Send size={16} className="text-blue-500 mr-2" />
                                         <span>Martin</span>
                                     </a>
-                                    <a href="https://t.me/Elma_R09" target="_blank" rel="noopener noreferrer" className="flex items-center justify-center px-3 py-2 rounded-md hover:bg-gray-100 text-sm text-gray-800">
+                                    <a href="https://t.me/Elma_R09" target="_blank" rel="noopener noreferrer" onClick={(e) => { e.preventDefault(); openExternal('https://t.me/Elma_R09', true); }} className="flex items-center justify-center px-3 py-2 rounded-md hover:bg-gray-100 text-sm text-gray-800">
                                         <Send size={16} className="text-blue-500 mr-2" />
                                         <span>Elma</span>
                                     </a>
