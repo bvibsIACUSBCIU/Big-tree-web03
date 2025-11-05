@@ -277,30 +277,32 @@ const Header = ({ language, setLanguage, t }) => {
   };
     const contactRef = useRef(null);
 
-    // 在点击外部链接时优先使用 window.open 打开新标签，
-    // 然后再关闭菜单。这样可以避免某些移动浏览器在 React
-    // 卸载触发元素后阻止导航的问题。
+    // 在点击外部链接时优先使用 window.open 打开新标签。
+    // 注意：不要在打开链接时自动收起 Contact 弹窗（用户要求点击链接不收起）。
     const openExternal = (url, closeMenu = false) => {
         try {
-            // 先尝试通过 window.open 显式打开（更可靠）
             window.open(url, '_blank', 'noopener,noreferrer');
         } catch (err) {
-            // 如果 window.open 被阻止，兜底使用 location.assign
             window.location.href = url;
         }
-        // 关闭弹窗/菜单状态（如果需要）
+        // 仅在需要时关闭主菜单（移动端侧边菜单），但不要收起 contact 弹窗
         if (closeMenu) setIsMenuOpen(false);
-        setIsContactOpen(false);
     };
 
+    // 全局点击检测：若点击目标或其父元素没有 data-contact 标记，则视为外部点击并收起 Contact
     useEffect(() => {
         const handleClickOutside = (e) => {
-            if (contactRef.current && !contactRef.current.contains(e.target)) {
+            const inside = e.target && e.target.closest && e.target.closest('[data-contact]');
+            if (!inside) {
                 setIsContactOpen(false);
             }
         };
         document.addEventListener('mousedown', handleClickOutside);
-        return () => document.removeEventListener('mousedown', handleClickOutside);
+        document.addEventListener('touchstart', handleClickOutside);
+        return () => {
+            document.removeEventListener('mousedown', handleClickOutside);
+            document.removeEventListener('touchstart', handleClickOutside);
+        };
     }, []);
 
     return (
@@ -322,22 +324,22 @@ const Header = ({ language, setLanguage, t }) => {
                         </a>
                     ))}
                 </nav>
-                <div className="hidden md:flex items-center space-x-4" ref={contactRef}>
+                <div className="hidden md:flex items-center space-x-4" ref={contactRef} data-contact>
                     <button onClick={toggleLanguage} aria-label="切换语言" className="flex items-center text-gray-700 hover:text-green-600 transition-colors bg-transparent px-3 py-2 rounded-full border border-gray-300/50 hover:border-green-400/50">
                         <Globe size={20} />
                         <span className="ml-2 font-medium text-sm md:text-base">{language === 'en' ? 'EN' : 'CN'}</span>
                     </button>
                     <div className="relative">
-                        <button onClick={() => setIsContactOpen(s => !s)} aria-haspopup="true" aria-expanded={isContactOpen} className="flex items-center bg-green-500 text-white font-semibold px-5 py-2.5 rounded-full shadow-lg shadow-green-500/20 text-sm md:text-base">
+                        <button data-contact onClick={() => setIsContactOpen(s => !s)} aria-haspopup="true" aria-expanded={isContactOpen} className="flex items-center bg-green-500 text-white font-semibold px-5 py-2.5 rounded-full shadow-lg shadow-green-500/20 text-sm md:text-base">
                             {t.contactUs}
                         </button>
                         {isContactOpen && (
-                            <div className="absolute right-0 mt-3 w-56 bg-white rounded-xl shadow-xl p-3 text-left z-50" role="menu" aria-label="Contact options">
-                                <a href="https://t.me/BIGBIGNONO" target="_blank" rel="noopener noreferrer" onClick={(e) => { e.preventDefault(); openExternal('https://t.me/BIGBIGNONO'); }} className="flex items-center px-3 py-2 rounded-md hover:bg-gray-100 text-sm text-gray-800">
+                            <div data-contact className="absolute right-0 mt-3 w-56 bg-white rounded-xl shadow-xl p-3 text-left z-50" role="menu" aria-label="Contact options">
+                                <a data-contact href="https://t.me/BIGBIGNONO" target="_blank" rel="noopener noreferrer" onClick={(e) => { e.preventDefault(); openExternal('https://t.me/BIGBIGNONO'); }} className="flex items-center px-3 py-2 rounded-md hover:bg-gray-100 text-sm text-gray-800">
                                     <Send size={16} className="text-blue-500 mr-3" />
                                     <span>Martin</span>
                                 </a>
-                                <a href="https://t.me/Elma_R09" target="_blank" rel="noopener noreferrer" onClick={(e) => { e.preventDefault(); openExternal('https://t.me/Elma_R09'); }} className="flex items-center px-3 py-2 rounded-md hover:bg-gray-100 text-sm text-gray-800">
+                                <a data-contact href="https://t.me/Elma_R09" target="_blank" rel="noopener noreferrer" onClick={(e) => { e.preventDefault(); openExternal('https://t.me/Elma_R09'); }} className="flex items-center px-3 py-2 rounded-md hover:bg-gray-100 text-sm text-gray-800">
                                     <Send size={16} className="text-blue-500 mr-3" />
                                     <span>Elma</span>
                                 </a>
@@ -345,7 +347,7 @@ const Header = ({ language, setLanguage, t }) => {
                         )}
                     </div>
                 </div>
-                <div className="md:hidden">
+                <div className="md:hidden" data-contact>
                     <button onClick={() => setIsMenuOpen(!isMenuOpen)} className="text-gray-700">
                         {isMenuOpen ? <X size={28}/> : <BarChart size={28} className='-rotate-90'/>}
                     </button>
@@ -357,14 +359,14 @@ const Header = ({ language, setLanguage, t }) => {
                         {navLinks.map((link) => <a key={link.key} href={link.href} className="text-gray-700 hover:text-green-600 transition-colors duration-300 font-medium text-lg" onClick={() => setIsMenuOpen(false)}>{t[link.key]}</a>)}
                         <button onClick={toggleLanguage} className="text-gray-700 font-medium text-base">{language === 'en' ? '切换到中文' : 'Switch to English'}</button>
                         <div className="w-full flex flex-col items-center">
-                            <motion.a href="#" onClick={(e) => { e.preventDefault(); setIsContactOpen(s => !s); }} className="bg-green-500 text-white font-semibold px-6 py-2 rounded-full text-base" whileHover={{ scale: 1.05 }}>{t.contactUs}</motion.a>
+                            <motion.a data-contact href="#" onClick={(e) => { e.preventDefault(); setIsContactOpen(s => !s); }} className="bg-green-500 text-white font-semibold px-6 py-2 rounded-full text-base" whileHover={{ scale: 1.05 }}>{t.contactUs}</motion.a>
                             {isContactOpen && (
-                                <div className="mt-3 w-3/4 bg-white rounded-xl shadow-md p-3 text-center">
-                                    <a href="https://t.me/BIGBIGNONO" target="_blank" rel="noopener noreferrer" onClick={(e) => { e.preventDefault(); openExternal('https://t.me/BIGBIGNONO', true); }} className="flex items-center justify-center px-3 py-2 rounded-md hover:bg-gray-100 text-sm text-gray-800">
+                                <div data-contact className="mt-3 w-3/4 bg-white rounded-xl shadow-md p-3 text-center">
+                                    <a data-contact href="https://t.me/BIGBIGNONO" target="_blank" rel="noopener noreferrer" onClick={(e) => { e.preventDefault(); openExternal('https://t.me/BIGBIGNONO'); }} className="flex items-center justify-center px-3 py-2 rounded-md hover:bg-gray-100 text-sm text-gray-800">
                                         <Send size={16} className="text-blue-500 mr-2" />
                                         <span>Martin</span>
                                     </a>
-                                    <a href="https://t.me/Elma_R09" target="_blank" rel="noopener noreferrer" onClick={(e) => { e.preventDefault(); openExternal('https://t.me/Elma_R09', true); }} className="flex items-center justify-center px-3 py-2 rounded-md hover:bg-gray-100 text-sm text-gray-800">
+                                    <a data-contact href="https://t.me/Elma_R09" target="_blank" rel="noopener noreferrer" onClick={(e) => { e.preventDefault(); openExternal('https://t.me/Elma_R09'); }} className="flex items-center justify-center px-3 py-2 rounded-md hover:bg-gray-100 text-sm text-gray-800">
                                         <Send size={16} className="text-blue-500 mr-2" />
                                         <span>Elma</span>
                                     </a>
