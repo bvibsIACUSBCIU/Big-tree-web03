@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { motion, useAnimation } from 'framer-motion';
 import { useInView } from 'react-intersection-observer';
-import { Clock, MapPin, Link as LinkIcon, Briefcase, Radio, Users, Zap, MessageSquare, BarChart, X, Globe, Send } from 'lucide-react';
+import { Clock, MapPin, Link as LinkIcon, Briefcase, Radio, Users, Zap, MessageSquare, BarChart, X, Globe, Send, ChevronLeft, ChevronRight } from 'lucide-react';
 
 // --- 多语言内容 (保持不变) ---
 const translations = {
@@ -592,6 +592,132 @@ const DetailedServiceSection = ({ t }) => (
     </AnimatedSection>
 );
 
+const BannerSection = () => {
+    const [currentIndex, setCurrentIndex] = useState(0);
+    const [isAutoPlaying, setIsAutoPlaying] = useState(true);
+    
+    // 海报图片数据（共11张）
+    const banners = [
+        'amg-banner/Web首页banner 750x300.png',
+        'amg-banner/Web首页banner 750x300 2.png',
+        'amg-banner/Web首页banner 750x300 3.png',
+        'amg-banner/Web首页banner 750x300 4.png',
+        'amg-banner/Web首页banner 750x300 5.png',
+        'amg-banner/Web首页banner 750x300 6.png',
+        'amg-banner/Web首页banner 750x300 7.png',
+        'amg-banner/Web首页banner 750x300 8.png',
+        'amg-banner/Web首页banner 750x300 9.png',
+        'amg-banner/Web首页banner 750x300 10.png',
+        'amg-banner/Web首页banner 750x300 11.png',
+    ];
+
+    // 自动轮播
+    useEffect(() => {
+        if (!isAutoPlaying) return;
+        const timer = setInterval(() => {
+            setCurrentIndex((prev) => (prev + 1) % banners.length);
+        }, 4000);
+        return () => clearInterval(timer);
+    }, [isAutoPlaying, banners.length]);
+
+    const goToSlide = (index) => {
+        setCurrentIndex(index);
+        setIsAutoPlaying(false);
+        setTimeout(() => setIsAutoPlaying(true), 5000);
+    };
+
+    const goToPrev = () => {
+        setCurrentIndex((prev) => (prev - 1 + banners.length) % banners.length);
+        setIsAutoPlaying(false);
+        setTimeout(() => setIsAutoPlaying(true), 5000);
+    };
+
+    const goToNext = () => {
+        setCurrentIndex((prev) => (prev + 1) % banners.length);
+        setIsAutoPlaying(false);
+        setTimeout(() => setIsAutoPlaying(true), 5000);
+    };
+
+    return (
+        <AnimatedSection className="py-12 md:py-16">
+            <div className="container mx-auto px-4 md:px-6 lg:px-8 relative z-10">
+                <SectionBg styleOverrides={{ 
+                    blob1: { opacity: 0.15, filter: 'blur(70px)' }, 
+                    blob2: { opacity: 0.10, filter: 'blur(50px)' } 
+                }} />
+                <div className="relative z-10 w-full max-w-6xl mx-auto">
+                    {/* Banner 标题 */}
+                    <motion.h2 
+                        className="text-4xl md:text-5xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-green-600 to-emerald-400 mb-8 text-center"
+                        variants={itemVariants}
+                    >
+                        BANNER
+                    </motion.h2>
+                    
+                    {/* 轮播容器 - 固定宽高比为 2.5:1 (750:300) */}
+                    <div 
+                        className="relative w-full overflow-hidden rounded-2xl shadow-2xl bg-white/40 backdrop-blur-sm"
+                        style={{ paddingBottom: '40%' }}
+                    >
+                        {/* 图片容器 - 绝对定位填充父容器 */}
+                        <div 
+                            className="absolute inset-0 flex transition-transform duration-700 ease-in-out"
+                            style={{ transform: `translateX(-${currentIndex * 100}%)` }}
+                        >
+                            {banners.map((banner, index) => (
+                                <div 
+                                    key={index} 
+                                    className="w-full h-full flex-shrink-0"
+                                    style={{ minWidth: '100%' }}
+                                >
+                                    <img
+                                        src={banner}
+                                        alt={`Banner ${index + 1}`}
+                                        className="w-full h-full object-cover object-center"
+                                        loading={index === 0 ? "eager" : "lazy"}
+                                    />
+                                </div>
+                            ))}
+                        </div>
+
+                        {/* 导航按钮 */}
+                        <button
+                            onClick={goToPrev}
+                            className="absolute left-2 md:left-4 top-1/2 -translate-y-1/2 bg-white/90 hover:bg-white text-gray-800 rounded-full p-2 md:p-3 shadow-lg transition-all duration-300 hover:scale-110 backdrop-blur-sm z-10"
+                            aria-label="Previous banner"
+                        >
+                            <ChevronLeft size={20} className="md:w-6 md:h-6" />
+                        </button>
+                        <button
+                            onClick={goToNext}
+                            className="absolute right-2 md:right-4 top-1/2 -translate-y-1/2 bg-white/90 hover:bg-white text-gray-800 rounded-full p-2 md:p-3 shadow-lg transition-all duration-300 hover:scale-110 backdrop-blur-sm z-10"
+                            aria-label="Next banner"
+                        >
+                            <ChevronRight size={20} className="md:w-6 md:h-6" />
+                        </button>
+
+                        {/* 指示器 */}
+                        <div className="absolute bottom-3 md:bottom-4 left-1/2 -translate-x-1/2 flex space-x-2 z-10">
+                            {banners.map((_, index) => (
+                                <button
+                                    key={index}
+                                    onClick={() => goToSlide(index)}
+                                    className={`h-1.5 md:h-2 rounded-full transition-all duration-300 ${
+                                        currentIndex === index 
+                                            ? 'w-6 md:w-8 bg-green-500' 
+                                            : 'w-1.5 md:w-2 bg-white/60 hover:bg-white/80'
+                                    }`}
+                                    aria-label={`Go to banner ${index + 1}`}
+                                />
+                            ))}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </AnimatedSection>
+    );
+};
+
 const AmaSection = ({ t, language }) => {
     // 使用多语言中同步的 t.amaEvents
     const amaData = t.amaEvents;
@@ -1063,6 +1189,7 @@ function App() {
                             <ServiceOverview t={t} />
                             <ResourcesSection t={t} />
                             <DetailedServiceSection t={t} />
+                            <BannerSection />
                             <AmaSection t={t} language={language} />
                             <VideoReview t={t} />
                             <Footer t={t} />
