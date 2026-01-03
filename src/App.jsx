@@ -646,14 +646,6 @@ const BannerSection = () => {
                     blob2: { opacity: 0.10, filter: 'blur(50px)' } 
                 }} />
                 <div className="relative z-10 w-full max-w-6xl mx-auto">
-                    {/* Banner 标题 */}
-                    <motion.h2 
-                        className="text-4xl md:text-5xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-green-600 to-emerald-400 mb-8 text-center"
-                        variants={itemVariants}
-                    >
-                        BANNER
-                    </motion.h2>
-                    
                     {/* 轮播容器 - 固定宽高比为 2.5:1 (750:300) */}
                     <div 
                         className="relative w-full overflow-hidden rounded-2xl shadow-2xl bg-white/40 backdrop-blur-sm"
